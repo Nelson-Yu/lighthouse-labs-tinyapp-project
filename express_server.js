@@ -14,14 +14,20 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// hello mage that satys 'Hello **World**'
+// /hello page that satys 'Hello **World**'
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// urls.json page taht displays the urls in urlDatabase
+// /urls.json page taht displays the urls in urlDatabase
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+// /urls route that uses res.render() to pass url data to our template
+app.get("/urls", (req, res) => {
+  let templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {
