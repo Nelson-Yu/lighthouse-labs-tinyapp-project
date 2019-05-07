@@ -44,6 +44,18 @@ app.post("/urls", (req, res) => {
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
+const generateRandomString = () => {
+  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let string = '';
+  const stringLength = 6;
+
+  for (let i = 0; i < stringLength; i++) {
+    let random = Math.floor(Math.random() * Math.floor(char.length)); //apply Math.random follow MDN
+    string += char.substring(random, random + 1);
+  }
+  return string;
+}
+
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
