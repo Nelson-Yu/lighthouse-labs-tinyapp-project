@@ -30,6 +30,11 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//added a GET route to show the form from urls_new.ejs
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
