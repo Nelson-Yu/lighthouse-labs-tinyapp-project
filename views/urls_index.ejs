@@ -11,11 +11,12 @@
 </head>
 
 <body style="font-size:20px; padding:50px;">
+  <h4> List of URLs </h4>
+    <a href="#">Create New URL</a>
   <u1>
-     <% for(url in urls) { %>
-      <li><%= url %> <%= urls[url] %></li>
+     <% for(key in urls) { %>
+      <li><%= key %>: <%= urls[key] %></li>
     <% }; %>
-    <a href="#">Shorten a New URL</a>
   </u1>
 
 </body>
