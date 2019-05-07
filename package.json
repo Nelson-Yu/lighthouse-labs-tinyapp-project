@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Nelson-Yu/lighthouse-labs-tinyapp-project/issues"
   },
-  "homepage": "https://github.com/Nelson-Yu/lighthouse-labs-tinyapp-project#readme"
+  "homepage": "https://github.com/Nelson-Yu/lighthouse-labs-tinyapp-project#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }
