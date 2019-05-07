@@ -38,6 +38,12 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//added a POST route to receive form submission
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
