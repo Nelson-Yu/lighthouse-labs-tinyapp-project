@@ -7,14 +7,17 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Home page that says 'Hello!'
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+// hello mage that satys 'Hello **World**'
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// urls.json page taht displays the urls in urlDatabase
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
