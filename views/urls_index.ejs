@@ -11,8 +11,9 @@
 </head>
 
 <body style="font-size:20px; padding:50px;">
+  <%- include partials/_header %>
+  <a href="#">Create New URL</a>
   <h4> List of URLs </h4>
-    <a href="#">Create New URL</a>
   <u1>
      <% for(key in urls) { %>
       <li><%= key %>: <%= urls[key] %></li>
