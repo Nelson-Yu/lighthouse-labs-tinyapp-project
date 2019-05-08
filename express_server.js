@@ -38,7 +38,8 @@ app.get("/urls", (req, res) => {
 
 //added a GET route to show the form from urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 //added a POST route to receive form submission
@@ -77,7 +78,12 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("username", req.body["username"]);
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", req.body["username"]);
   res.redirect("/urls");
 });
 
@@ -89,7 +95,7 @@ app.get("/u/:shortURL", (req, res) => {
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
-  let templateVars = { shortURL: sURL, longURL: urlDatabase[sURL]};
+  let templateVars = { shortURL: sURL, longURL: urlDatabase[sURL], username: req.cookies["username"]};
   res.render("urls_show", templateVars);
 });
 
