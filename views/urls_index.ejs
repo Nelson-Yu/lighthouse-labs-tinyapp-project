@@ -12,14 +12,16 @@
 
 <body style="font-size:20px; padding:50px;">
   <%- include partials/_header %>
-  <a href="#">Create New URL</a>
+  <a href="/urls/new">Create New URL</a>
   <h5><br>List of URLs </h5></h4>
   <ul>
      <% for(key in urls) { %>
       <li>
         <b><%= key %>:</b>
         <%= urls[key] %>
-        <form method="POST" action="/urls/<%= key %>/delete"><input type="submit" value="Delete"></form>
+        <form method="POST" action="/urls/<%= key %>/delete">
+          <input type="submit" value="Delete 🗑️">
+        </form>
       </li>
     <% }; %>
   </ul>
