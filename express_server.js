@@ -65,14 +65,14 @@ const generateRandomString = () => {
   return string;
 }
 
-app.post("/urls/:id/delete", (req, res) => {
-  const id = req.params.id;
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const id = req.params.shortURL;
   delete urlDatabase[id];
   res.redirect("/urls");
 });
 
-app.post("/urls/:id", (req, res) => {
-  const updateURL = req.params.id;
+app.post("/urls/:shortURL", (req, res) => {
+  const updateURL = req.params.shortURL;
   urlDatabase[updateURL] = req.body.newURL;
   res.redirect("/urls");
 });
