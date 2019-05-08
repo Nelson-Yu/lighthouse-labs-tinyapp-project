@@ -32,7 +32,7 @@ app.get("/urls.json", (req, res) => {
 
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
 });
 

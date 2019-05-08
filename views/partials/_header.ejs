@@ -1,7 +1,11 @@
-<h1>TinyApp</h1>
-
-<form method="POST" action="/login">
-  <label for="username">Enter Username</label>
-  <input type="text" name="username">
-  <input type="submit" value="Submit">
-</form>
+<header>
+  <h1>TinyApp</h1>
+  <form method="POST" action="/login">
+    <label for="username">Enter Username</label>
+    <input type="text" name="username">
+    <input type="submit" value="Submit">
+    <% if (username) { %>
+      Username: <%= username %>
+    <% } %>
+  </form>
+</header>
