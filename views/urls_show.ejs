@@ -18,10 +18,14 @@
   <p>
   <a href="/urls">Current List of URLs</a>
   </p>
-  <ul>
-    <h4>TinyURL for <%= longURL %></h4>
-        <h6><%= shortURL %></h6>
-  </ul>
+  <h2>
+    Short URL: <%= shortURL %> ➡️ <%= longURL %>
+  </h2>
+  <form method ="POST" action="/urls/<%= shortURL %>">
+    <label for="newURL"> Change URL</label>
+    <input type="text" name="newURL" placeholder="<%= longURL %>">
+    <input type ="submit" value="Update!">
+  </form>
 
 </body>
 
