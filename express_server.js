@@ -40,8 +40,13 @@ app.get("/urls/new", (req, res) => {
 
 //added a POST route to receive form submission
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  // console.log(req.body);  // Log the POST request body to the console
+  // res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const getShortURL = String(generateRandomString());
+
+  urlDatabase[getShortURL] = req.body['longURL'];
+  res.redirect(`/urls/${getShortURL}`);
+  // console.log (database: urlDatabase) // logs updated urlDatabase
 });
 
 const generateRandomString = () => {
@@ -51,7 +56,7 @@ const generateRandomString = () => {
 
   for (let i = 0; i < stringLength; i++) {
     let random = Math.floor(Math.random() * Math.floor(char.length)); //apply Math.random follow MDN
-    string += char.substring(random, random + 1);
+    string += char.substring(random, random + 1); // string together random characters)
   }
   return string;
 }
