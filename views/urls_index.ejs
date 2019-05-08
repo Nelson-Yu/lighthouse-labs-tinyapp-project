@@ -17,8 +17,9 @@
   <ul>
      <% for(key in urls) { %>
       <li>
-        <b><%= key %>:</b>
+        <b><%= key %>:</b> ➡️
         <%= urls[key] %>
+        <a href="urls/<%= key %>">Edit</a>
         <form method="POST" action="/urls/<%= key %>/delete">
           <input type="submit" value="Delete 🗑️">
         </form>
