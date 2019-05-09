@@ -72,22 +72,45 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// /urls route that uses res.render() to pass url data to our template
+app.get("/urls", (req, res) => {
+  let user_id = req.cookies['user_id'];
+  let user = userDatabase[user_id];
+
+  let templateVars = {
+    urls: urlDatabase,
+    user_id,
+    user
+  };
+
+  res.render('urls_index', templateVars);
+});
+
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
-  let templateVars = { shortURL: sURL, longURL: urlDatabase[sURL], user: urlDatabase[req.cookies["user_id"]] };
+  let user_id = req.cookies['user_id'];
+  let user = userDatabase[user_id];
+
+  let templateVars = {
+    shortURL: sURL,
+    longURL: urlDatabase[sURL],
+    user_id,
+    user
+  };
   res.render("urls_show", templateVars);
 
-});
-// /urls route that uses res.render() to pass url data to our template
-app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, user: urlDatabase[req.cookies["user_id"]] };
-  res.render("urls_index", templateVars);
 });
 
 //added a GET route to show the form from urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase, user: urlDatabase[req.cookies["user_id"]] };
+  let user_id = req.cookies['user_id'];
+  let user = userDatabase[user_id];
+
+  let templateVars = {
+    user_id,
+    user
+  };
   res.render("urls_new", templateVars);
 });
 
@@ -97,7 +120,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = { user: urlDatabase[req.cookies["user_id"]] };
+  let user_id = req.cookies['user_id'];
+  let user = userDatabase[user_id];
+  let templateVars = {
+    user_id,
+    user
+  };
   res.render("register", templateVars);
 })
 
