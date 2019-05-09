@@ -17,7 +17,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const userDatabse = {
+const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
@@ -44,13 +44,15 @@ const generateRandomString = () => {
 }
 
 const emailCheck = (email) => {
-  for (let user_id in userDatabse) {
-    if (userDatabse[user_id].email === email) {
-      return true;
+  let result;
+  for (let user_id in userDatabase) {
+    if (userDatabase[user_id].email === email) {
+      result =  true;
     } else {
-      return false;
+      result = false;
     }
   }
+  return result
 }
 
 // GET Routes
@@ -73,19 +75,19 @@ app.get("/urls.json", (req, res) => {
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
-  let templateVars = { shortURL: sURL, longURL: urlDatabase[sURL], username: req.cookies["username"]};
+  let templateVars = { shortURL: sURL, longURL: urlDatabase[sURL], user: urlDatabase[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 
 });
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, user: urlDatabase[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 
 //added a GET route to show the form from urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, user: urlDatabase[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
@@ -95,7 +97,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = { username: req.cookies["username"] };
+  let templateVars = { user: urlDatabase[req.cookies["user_id"]] };
   res.render("register", templateVars);
 })
 
@@ -124,13 +126,13 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // added a POST  route for a login using cookies
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body["username"]);
+  res.cookie("user_id", req.body["user_id"]);
   res.redirect("/urls");
 });
 
 //added a POST route for a logout using clearCookies
 app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body["username"]);
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -144,11 +146,11 @@ app.post("/register", (req, res) => {
   } else if (emailCheck(req.body.email)) {
     res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail');
   } else {
-    userDatabse[user_id] = userList;
+    userDatabase[user_id] = userList;
     res.cookie('user_id', user_id);
     res.redirect('/urls');
   }
-  // console.log(userDatabse); // used to check if userdatabase updated
+  console.log(userDatabase); // used to check if userdatabase updated
 })
 
 // LISTEN route
