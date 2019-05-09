@@ -71,6 +71,11 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  res.render("register", templateVars);
+})
+
 // POST routes
 
 //added a POST route to receive form submission
@@ -94,13 +99,13 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
-// added a POST  route for a login using cookies()
+// added a POST  route for a login using cookies
 app.post("/login", (req, res) => {
   res.cookie("username", req.body["username"]);
   res.redirect("/urls");
 });
 
-//added a POST route for a logout using clearCookie()
+//added a POST route for a logout using clearCookies
 app.post("/logout", (req, res) => {
   res.clearCookie("username", req.body["username"]);
   res.redirect("/urls");
