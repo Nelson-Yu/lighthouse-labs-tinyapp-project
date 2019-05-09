@@ -30,6 +30,19 @@ const generateRandomString = () => {
   return string;
 }
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 // GET Routes
 
 // Home page that says 'Hello!'
@@ -110,6 +123,13 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username", req.body["username"]);
   res.redirect("/urls");
 });
+
+app.post("/register", (req, res) => {
+  const user_id = generateRandomString();
+  users[user_id] = { "id": user_id, "email": req.body.email, "password": req.body.password };
+  res.cookie("user_id", user_id);
+  res.redirect("/urls");
+})
 
 // LISTEN route
 
