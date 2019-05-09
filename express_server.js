@@ -17,6 +17,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const userDatabse = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 // Functions used in routes => used to generate a ramdom string of 6 characters as the shortURL
 const generateRandomString = () => {
   const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -30,16 +43,13 @@ const generateRandomString = () => {
   return string;
 }
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
+const emailCheck = (email) => {
+  for (let user_id in userDatabse) {
+    if (userDatabse[user_id].email === email) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -85,7 +95,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { username: req.cookies["username"] };
   res.render("register", templateVars);
 })
 
@@ -124,11 +134,21 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+//added a POST route for /register where email is added to databse + handled registration error
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
-  users[user_id] = { "id": user_id, "email": req.body.email, "password": req.body.password };
-  res.cookie("user_id", user_id);
-  res.redirect("/urls");
+  let userList = {id: user_id, email: req.body.email, password: req.body.password};
+
+  if (!userList.email || !userList.password) {
+    res.status(400).send('400 Bad Request: Please enter email and password');
+  } else if (emailCheck(req.body.email)) {
+    res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail');
+  } else {
+    userDatabse[user_id] = userList;
+    res.cookie('user_id', user_id);
+    res.redirect('/urls');
+  }
+  // console.log(userDatabse); // used to check if userdatabase updated
 })
 
 // LISTEN route
