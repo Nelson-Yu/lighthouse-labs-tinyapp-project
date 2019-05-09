@@ -75,12 +75,12 @@ app.get("/urls.json", (req, res) => {
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let user = userDatabase[user_id];
+  let users = userDatabase[user_id];
 
   let templateVars = {
     urls: urlDatabase,
     user_id,
-    user
+    users
   };
 
   res.render('urls_index', templateVars);
@@ -90,13 +90,13 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
   let user_id = req.cookies['user_id'];
-  let user = userDatabase[user_id];
+  let users = userDatabase[user_id];
 
   let templateVars = {
     shortURL: sURL,
     longURL: urlDatabase[sURL],
     user_id,
-    user
+    users
   };
   res.render("urls_show", templateVars);
 
@@ -105,11 +105,11 @@ app.get("/urls/:shortURL", (req, res) => {
 //added a GET route to show the form from urls_new.ejs
 app.get("/urls/new", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let user = userDatabase[user_id];
+  let users = userDatabase[user_id];
 
   let templateVars = {
     user_id,
-    user
+    users
   };
   res.render("urls_new", templateVars);
 });
@@ -121,12 +121,22 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/register", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let user = userDatabase[user_id];
+  let users = userDatabase[user_id];
   let templateVars = {
     user_id,
-    user
+    users
   };
   res.render("register", templateVars);
+})
+
+app.get("/login", (req, res) => {
+  let user_id = req.cookies['user_id'];
+  let users = userDatabase[user_id];
+  let templateVars = {
+    user_id,
+    users
+  };
+  res.render("login", templateVars)
 })
 
 // POST routes
@@ -163,6 +173,7 @@ app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
+
 
 //added a POST route for /register where email is added to databse + handled registration error
 app.post("/register", (req, res) => {
