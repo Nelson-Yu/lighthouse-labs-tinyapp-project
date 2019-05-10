@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
 app.use(cookieSession( {
   name: "session",
-  keys: ["123aBc", "AbC321"],
+  keys: ["AbC321"],
 
   //cookie options
   maxAge: 24 * 60 * 60 * 1000
@@ -37,19 +37,19 @@ const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    hashedPassword: "dino"
+    hashedPassword: bcrypt.hashSync("dino", 12)
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    hashedPassword: "funk"
+    hashedPassword: bcrypt.hashSync("funk", 12)
   }
 }
 
 // Functions used in routes => used to generate a ramdom string of 6 characters as the shortURL
 const generateRandomString = () => {
-  const char = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let string = '';
+  const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let string = "";
   const stringLength = 6;
 
   for (let i = 0; i < stringLength; i++) {
@@ -79,6 +79,28 @@ const urlsForUser = (id) => {
 }
 
 // GET Routes
+
+// A GET route where when a user is logged in "/" will redirect to "/urls", else it will redirect to "/login"
+app.get("/", (req, res) => {
+  let user_id = req.session["user_id"];
+
+  if (user_id) {
+    res.redirect("/urls")
+  } else {
+    res.redirect("/login")
+  }
+});
+
+// /hello page that satys 'Hello **World**'
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+// /urls.json page taht displays the urls in urlDatabase
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
 app.get("/urls/new", (req, res) => {
   let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
@@ -93,36 +115,22 @@ app.get("/urls/new", (req, res) => {
   } else {
     res.status(403).redirect("/login");
   }
-
-});
-
-// Home page that says 'Hello!'
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-// /hello page that satys 'Hello **World**'
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-// /urls.json page taht displays the urls in urlDatabase
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
-  let user_id = req.session['user_id'];
+  let user_id = req.session.user_id;
   let currentUser = userDatabase[user_id];
   let userURLs = urlsForUser(user_id)
+
+  console.log(userURLs);
 
   let templateVars = {
     user_id,
     currentUser,
     urls: urlDatabase,
-    users: userDatabase,
-    userURLs
+    userURLs,
+    users: userDatabase
   };
 
   res.render('urls_index', templateVars);
@@ -180,13 +188,13 @@ app.post("/urls", (req, res) => {
   // urlDatabase[getShortURL] = req.body['longURL'];
   // res.redirect(`/urls/${getShortURL}`);
 
-  const shortURL = String(generateRandomString());
+  let shortURL = String(generateRandomString());
   let currentUser = req.session["user_id"];
-  let longURL = req.body;
+  let longURL = req.body["longURL"];
 
   let newURL = {
     id: currentUser,
-    shortURL: longURL
+    [shortURL]: longURL
   };
 
   urlDatabase[shortURL] = newURL
