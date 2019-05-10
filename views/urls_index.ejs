@@ -12,29 +12,26 @@
 
 <body style="font-size:20px; padding:50px;">
   <%- include partials/_header %>
+
   <a href="/urls/new">Create New URL</a>
+
   <h4><br>List of URLs:</br></h4>
-  <ul>
-     <% for(key in urls) { %>
-      <li>
-
-        <a href="/u/<%= key %>">
-          <b><%= key %>:</b>
-        </a>
-
-        ➡️
-        <%= urls[key] %>
-
-        <a href="urls/<%= key %>">
-        Edit
-        </a>
-
-        <form method="POST" action="/urls/<%= key %>/delete">
-          <input type="submit" value="Delete 🗑️">
-        </form>
-
-      </li>
-    <% }; %>
+    <ul>
+      <% if ( currentUser ){ %>
+        <% for(let shortURL in urls){ %>
+          <% if(currentUser.id === urls[shortURL].id) { %>
+            <li><b><%= shortURL %></b>: <%= urls[shortURL][shortURL] %>
+            <br>
+            <form method="POST" action="/urls/<%= shortURL %>/delete">
+              <a href="/urls/<%= shortURL %>"> Edit </a>
+              <input type="submit" value="Delete 🗑️">
+            </form>
+            </li>
+          <% } %>
+        <% } %>
+      <% } else {%>
+        <p>Please login to see personalized list of URLs.</p>
+      <% }%>
   </ul>
 
 </body>

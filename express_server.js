@@ -13,8 +13,14 @@ app.use(cookieParser());
 // Declared objects used in the routes
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    "id": "userRandomID",
+    "b2xVn2": "http://www.lighthouselabs.ca",
+  },
+  "9sm5xK": {
+    "id": "user2RandomID",
+    "9sm5xK": "http://www.google.com"
+  }
 };
 
 const userDatabase = {
@@ -53,6 +59,22 @@ const emailCheck = (email) => {
 }
 
 // GET Routes
+app.get("/urls/new", (req, res) => {
+  let user_id = req.cookies['user_id'];
+  let currentUser = userDatabase[user_id];
+
+  let templateVars = {
+    user_id,
+    currentUser
+  };
+
+  if(user_id) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.status(403).redirect("/login");
+  }
+
+});
 
 // Home page that says 'Hello!'
 app.get("/", (req, res) => {
@@ -72,12 +94,13 @@ app.get("/urls.json", (req, res) => {
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let users = userDatabase[user_id];
+  let currentUser = userDatabase[user_id];
 
   let templateVars = {
-    urls: urlDatabase,
     user_id,
-    users
+    currentUser,
+    urls: urlDatabase,
+    users: userDatabase
   };
 
   res.render('urls_index', templateVars);
@@ -87,29 +110,18 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
   let user_id = req.cookies['user_id'];
-  let users = userDatabase[user_id];
+  let currentUser = userDatabase[user_id];
 
   let templateVars = {
     shortURL: sURL,
     longURL: urlDatabase[sURL],
     user_id,
-    users
+    currentUser
   };
   res.render("urls_show", templateVars);
-
 });
 
 //added a GET route to show the form from urls_new.ejs
-app.get("/urls/new", (req, res) => {
-  let user_id = req.cookies['user_id'];
-  let users = userDatabase[user_id];
-
-  let templateVars = {
-    user_id,
-    users
-  };
-  res.render("urls_new", templateVars);
-});
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -118,20 +130,20 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/register", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let users = userDatabase[user_id];
+  let currentUser = userDatabase[user_id];
   let templateVars = {
     user_id,
-    users
+    currentUser
   };
   res.render("register", templateVars);
 })
 
 app.get("/login", (req, res) => {
   let user_id = req.cookies['user_id'];
-  let users = userDatabase[user_id];
+  let currentUser = userDatabase[user_id];
   let templateVars = {
     user_id,
-    users
+    currentUser
   };
   res.render("login", templateVars)
 })
@@ -140,9 +152,22 @@ app.get("/login", (req, res) => {
 
 //added a POST route to receive form submission
 app.post("/urls", (req, res) => {
-  const getShortURL = String(generateRandomString());
-  urlDatabase[getShortURL] = req.body['longURL'];
-  res.redirect(`/urls/${getShortURL}`);
+  // const getShortURL = String(generateRandomString());
+  // urlDatabase[getShortURL] = req.body['longURL'];
+  // res.redirect(`/urls/${getShortURL}`);
+
+  const shortURL = String(generateRandomString());
+  let currentUser = req.cookies["user_id"];
+  let longURL = req.body;
+
+  let newURL = {
+    id: currentUser,
+    shortURL: longURL
+  };
+
+  urlDatabase[shortURL] = newURL
+  res.status(201).redirect('/urls');
+
 });
 
 // added a POST route to detele an URL from the list
