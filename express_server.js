@@ -21,12 +21,12 @@ const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "dino"
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "funk"
   }
 }
 
@@ -44,15 +44,12 @@ const generateRandomString = () => {
 }
 
 const emailCheck = (email) => {
-  let result;
   for (let user_id in userDatabase) {
     if (userDatabase[user_id].email === email) {
-      result =  true;
-    } else {
-      result = false;
+      return  true;
     }
   }
-  return result
+  return false;
 }
 
 // GET Routes
@@ -164,8 +161,24 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // added a POST  route for a login using cookies
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body["user_id"]);
-  res.redirect("/urls");
+   let match = false;
+   let userID = '';
+
+   for (let user in userDatabase) {
+     if ((userDatabase[user].email === req.body.email) && (userDatabase[user].password === req.body.password)) {
+      match = true;
+      userID = userDatabase[user].id;
+      }
+    }
+
+   if (!emailCheck(req.body.email)) {
+    res.status(403).send('403: Email is not registered');
+  } else if (match) {
+    res.cookie('user_id', userID);
+    res.redirect('/urls');
+  } else {
+    res.status(403).send('403: Forbidden');
+  }
 });
 
 //added a POST route for a logout using clearCookies
@@ -173,7 +186,6 @@ app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
-
 
 //added a POST route for /register where email is added to databse + handled registration error
 app.post("/register", (req, res) => {
