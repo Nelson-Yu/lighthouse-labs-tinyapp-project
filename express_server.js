@@ -9,12 +9,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // const cookieParser = require('cookie-parser');
 // app.use(cookieParser());
+
 const cookieSession = require('cookie-session');
 app.use(cookieSession( {
   name: "session",
   keys: ["AbC321"],
-
-  //cookie options
   maxAge: 24 * 60 * 60 * 1000
 }))
 
@@ -91,17 +90,7 @@ app.get("/", (req, res) => {
   }
 });
 
-// /hello page that satys 'Hello **World**'
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-// /urls.json page taht displays the urls in urlDatabase
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-// /urls route that uses res.render() to pass url data to our template
+// A GET route where when a user is logged in it renders "urls_index", else return an error
 app.get("/urls", (req, res) => {
   let user_id = req.session.user_id;
   let currentUser = userDatabase[user_id];
@@ -122,6 +111,7 @@ app.get("/urls", (req, res) => {
   }
 });
 
+// A GET route for /urls/new where if the user is logged in it renders "urls_new", else returns error
 app.get("/urls/new", (req, res) => {
   let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
@@ -138,28 +128,40 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// added /url/:shortURL route
-app.get("/urls/:shortURL", (req, res) => {
-  let sURL = req.params.shortURL;
+// A GET route to /urls/:id where if the user_id matches the id of the URLdatabase render "urls_show", else error.
+app.get("/urls/:id", (req, res) => {
   let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
+  let shortURL = req.params.id;
+  let longURL = urlDatabase[shortURL][shortURL]
 
   let templateVars = {
-    shortURL: sURL,
-    longURL: urlDatabase[sURL][sURL],
+    shortURL: shortURL,
+    longURL: longURL,
     user_id,
     currentUser
   };
-  res.render("urls_show", templateVars);
+
+  if (user_id === urlDatabase[shortURL].id) {
+    res.render("urls_show", templateVars);
+  } else if (!longURL) {
+    res.status(404).send("404 Not Found: This URL does not exist")
+  }  else {
+    res.status(401).send("401 Unauthorized: Unable to access this page")
+  }
 });
 
 //added a GET route to show the form from urls_new.ejs
 
-app.get("/u/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL
+app.get("/u/:id", (req, res) => {
+  let shortURL = req.params.id
   let longURL = urlDatabase[shortURL][shortURL];
 
-  res.redirect(longURL);
+  if (longURL) {
+    res.status(302).redirect(longURL)
+  } else {
+    res.status(404).send("404 Not Found: This URL does not exist!");
+  }
 });
 
 app.get("/register", (req, res) => {
