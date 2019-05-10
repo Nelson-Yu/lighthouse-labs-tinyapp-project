@@ -101,22 +101,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/urls/new", (req, res) => {
-  let user_id = req.session['user_id'];
-  let currentUser = userDatabase[user_id];
-
-  let templateVars = {
-    user_id,
-    currentUser
-  };
-
-  if(user_id) {
-    res.render("urls_new", templateVars);
-  } else {
-    res.status(403).redirect("/login");
-  }
-});
-
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
   let user_id = req.session.user_id;
@@ -135,6 +119,22 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   } else {
     res.status(401).send("401 Unauthorized: Please login to see your URL list")
+  }
+});
+
+app.get("/urls/new", (req, res) => {
+  let user_id = req.session['user_id'];
+  let currentUser = userDatabase[user_id];
+
+  let templateVars = {
+    user_id,
+    currentUser
+  };
+
+  if(user_id) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.status(403).redirect("/login");
   }
 });
 
