@@ -58,6 +58,16 @@ const emailCheck = (email) => {
   return false;
 }
 
+const urlsForUser = (id) => {
+  let urlsUser = {};
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].id === id) {
+      urlsUser[key] = urlDatabase[key]
+    }
+  }
+  return urlsUser;
+}
+
 // GET Routes
 app.get("/urls/new", (req, res) => {
   let user_id = req.cookies['user_id'];
@@ -95,12 +105,14 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let user_id = req.cookies['user_id'];
   let currentUser = userDatabase[user_id];
+  let userURLs = urlsForUser(user_id)
 
   let templateVars = {
     user_id,
     currentUser,
     urls: urlDatabase,
-    users: userDatabase
+    users: userDatabase,
+    userURLs
   };
 
   res.render('urls_index', templateVars);
@@ -114,7 +126,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
   let templateVars = {
     shortURL: sURL,
-    longURL: urlDatabase[sURL],
+    longURL: urlDatabase[sURL][sURL],
     user_id,
     currentUser
   };
@@ -171,17 +183,29 @@ app.post("/urls", (req, res) => {
 });
 
 // added a POST route to detele an URL from the list
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const id = req.params.shortURL;
-  delete urlDatabase[id];
-  res.redirect("/urls");
+app.post("/urls/:id/delete", (req, res) => {
+  let shortURL = req.params.id;
+  let currentUser = req.cookies["user_id"];
+  if (currentUser === urlDatabase[shortURL].id) {
+    delete urlDatabase[shortURL];
+    res.status(200).redirect('/urls');
+  } else {
+    res.status(401).send('401 Forbidden: Deletion requires owner of URLs')
+  }
 });
 
 // added a POST route to add an update submit button
 app.post("/urls/:shortURL", (req, res) => {
-  const updateURL = req.params.shortURL;
-  urlDatabase[updateURL] = req.body.newURL;
-  res.redirect("/urls");
+  let currentUser = req.cookies["user_id"];
+  let shortURL = req.params.shortURL;
+  let editURL = req.body;
+
+  if (currentUser === urlDatabase[shortURL].id) {
+    urlDatabase[shortURL][shortURL] = editURL;
+    res.status(200).redirect('/urls');
+  } else {
+    res.status(401).send("401 Forbidden: Edit requires owner of URLs")
+  }
 });
 
 // added a POST  route for a login using cookies

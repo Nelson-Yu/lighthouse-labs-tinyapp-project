@@ -18,16 +18,14 @@
   <h4><br>List of URLs:</br></h4>
     <ul>
       <% if ( currentUser ){ %>
-        <% for(let shortURL in urls){ %>
-          <% if(currentUser.id === urls[shortURL].id) { %>
-            <li><b><%= shortURL %></b>: <%= urls[shortURL][shortURL] %>
-            <br>
-            <form method="POST" action="/urls/<%= shortURL %>/delete">
-              <a href="/urls/<%= shortURL %>"> Edit </a>
-              <input type="submit" value="Delete 🗑️">
-            </form>
-            </li>
-          <% } %>
+        <% for(let shortURL in userURLs){ %>
+          <li><b><%= shortURL %></b>: <%= userURLs[shortURL][shortURL] %>
+          <br>
+          <form method="POST" action="/urls/<%= shortURL %>/delete">
+            <a href="/urls/<%= shortURL %>"> Edit </a>
+            <input type="submit" value="Delete 🗑️">
+          </form>
+          </li>
         <% } %>
       <% } else {%>
         <p>Please login to see personalized list of URLs.</p>
