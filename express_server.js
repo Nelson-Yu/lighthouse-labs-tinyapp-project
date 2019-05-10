@@ -71,7 +71,7 @@ const urlsForUser = (id) => {
   let urlsUser = {};
   for (let key in urlDatabase) {
     if (urlDatabase[key].id === id) {
-      urlsUser[key] = urlDatabase[key]
+      urlsUser[key] = urlDatabase[key];
     }
   }
   return urlsUser;
@@ -84,9 +84,9 @@ app.get("/", (req, res) => {
   let user_id = req.session["user_id"];
 
   if (user_id) {
-    res.redirect("/urls")
+    res.redirect("/urls");
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
 });
 
@@ -107,7 +107,7 @@ app.get("/urls", (req, res) => {
   if (user_id) {
     res.render("urls_index", templateVars);
   } else {
-    res.status(401).send("401 Unauthorized: Please login to see your URL list")
+    res.status(401).send("401 Unauthorized: Please login to see your URL list");
   }
 });
 
@@ -145,9 +145,9 @@ app.get("/urls/:id", (req, res) => {
   if (user_id === urlDatabase[shortURL].id) {
     res.render("urls_show", templateVars);
   } else if (!longURL) {
-    res.status(404).send("404 Not Found: This URL does not exist")
+    res.status(404).send("404 Not Found: This URL does not exist");
   }  else {
-    res.status(401).send("401 Unauthorized: Unable to access this page")
+    res.status(401).send("401 Unauthorized: Unable to access this page");
   }
 });
 
@@ -157,12 +157,13 @@ app.get("/u/:id", (req, res) => {
   let longURL = urlDatabase[shortURL][shortURL];
 
   if (longURL) {
-    res.status(302).redirect(longURL)
+    res.status(302).redirect(longURL);
   } else {
     res.status(404).send("404 Not Found: This URL does not exist!");
   }
 });
 
+// A GET route that redirects the user if logged in, else a login from is displayed
 app.get("/login", (req, res) => {
   let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
@@ -170,9 +171,15 @@ app.get("/login", (req, res) => {
     user_id,
     currentUser
   };
-  res.render("login", templateVars)
+
+  if (user_id) {
+    res.status(300).redirect("/urls");
+  } else {
+    res.render("login", templateVars);
+  }
 })
 
+// A GET route that redirects the user if logged in, else a register from is displayed
 app.get("/register", (req, res) => {
   let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
@@ -180,7 +187,12 @@ app.get("/register", (req, res) => {
     user_id,
     currentUser
   };
-  res.render("register", templateVars);
+
+  if (user_id) {
+    res.status(300).redirect("/urls");
+  } else {
+    res.render("register", templateVars);
+  }
 })
 
 
@@ -206,26 +218,13 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// A POST route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
-app.post("/urls/:id/delete", (req, res) => {
+// A POST route to accept the update submission from the urls/:id page
+app.post("/urls/:id", (req, res) => {
+  let user_id = req.session["user_id"];
   let shortURL = req.params.id;
-  let currentUser = req.session["user_id"];
-
-  if (currentUser === urlDatabase[shortURL].id) {
-    delete urlDatabase[shortURL];
-    res.status(200).redirect('/urls');
-  } else {
-    res.status(401).send('401 Forbidden: Deletion requires owner of URLs')
-  }
-});
-
-// added a POST route to add an update submit button
-app.post("/urls/:shortURL", (req, res) => {
-  let currentUser = req.session["user_id"];
-  let shortURL = req.params.shortURL;
   let editURL = req.body["newURL"];
 
-  if (currentUser === urlDatabase[shortURL].id) {
+  if (user_id === urlDatabase[shortURL].id) {
     urlDatabase[shortURL][shortURL] = editURL;
     res.status(200).redirect('/urls');
   } else {
@@ -233,7 +232,21 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
-// added a POST  route for a login using cookies
+// A POST route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
+app.post("/urls/:id/delete", (req, res) => {
+  let user_id = req.session["user_id"];
+  let shortURL = req.params.id;
+
+  if (user_id === urlDatabase[shortURL].id) {
+    delete urlDatabase[shortURL];
+    res.status(200).redirect('/urls');
+  } else {
+    res.status(401).send('401 Forbidden: Deletion requires owner of URLs')
+  }
+});
+
+// A POST route for a login using encrypted cookies and hashed passwords
+// The if statement checks if the email is already registered or if the entered email/password match or not
 app.post("/login", (req, res) => {
    let match = false;
    let userID = '';
@@ -251,7 +264,6 @@ app.post("/login", (req, res) => {
    if (!emailCheck(req.body.email)) {
     res.status(403).send('403: Email is not registered');
   } else if (match) {
-    // res.cookie('user_id', userID);
     req.session.user_id = userID;
     res.redirect('/urls');
   } else {
@@ -259,14 +271,14 @@ app.post("/login", (req, res) => {
   }
 });
 
-//added a POST route for a logout using clearCookies
+//A POST route for a logout using clear cookiesession
 app.post("/logout", (req, res) => {
-  // res.clearCookie("user_id");
-  req.session = null
+  req.session = null;
   res.status(200).redirect("/urls");
 });
 
-//added a POST route for /register where email is added to databse + handled registration error
+// A POST route for /register where email is added to database + encrypt cookies + hashing password
+// If statement is used to handle any errors where
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
   const emailInput = req.body.email;
@@ -281,11 +293,9 @@ app.post("/register", (req, res) => {
     res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail');
   } else {
     userDatabase[user_id] = userList;
-    // res.cookie('user_id', user_id);
-    req.session["user_id"] = user_id
+    req.session["user_id"] = user_id;
     res.redirect('/urls');
   }
-  console.log(userDatabase); // used to check if userdatabase updated
 })
 
 // LISTEN route
