@@ -92,7 +92,7 @@ app.get("/", (req, res) => {
 
 // A GET route where when a user is logged in it renders "urls_index", else return an error
 app.get("/urls", (req, res) => {
-  let user_id = req.session.user_id;
+  let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
   let userURLs = urlsForUser(user_id)
 
@@ -113,7 +113,7 @@ app.get("/urls", (req, res) => {
 
 // A GET route for /urls/new where if the user is logged in it renders "urls_new", else returns error
 app.get("/urls/new", (req, res) => {
-  let user_id = req.session['user_id'];
+  let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
 
   let templateVars = {
@@ -130,7 +130,7 @@ app.get("/urls/new", (req, res) => {
 
 // A GET route to /urls/:id where if the user_id matches the id of the URLdatabase render "urls_show", else error.
 app.get("/urls/:id", (req, res) => {
-  let user_id = req.session['user_id'];
+  let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
   let shortURL = req.params.id;
   let longURL = urlDatabase[shortURL][shortURL]
@@ -151,8 +151,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-//added a GET route to show the form from urls_new.ejs
-
+// A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
 app.get("/u/:id", (req, res) => {
   let shortURL = req.params.id
   let longURL = urlDatabase[shortURL][shortURL];
@@ -164,18 +163,8 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-app.get("/register", (req, res) => {
-  let user_id = req.session['user_id'];
-  let currentUser = userDatabase[user_id];
-  let templateVars = {
-    user_id,
-    currentUser
-  };
-  res.render("register", templateVars);
-})
-
 app.get("/login", (req, res) => {
-  let user_id = req.session['user_id'];
+  let user_id = req.session["user_id"];
   let currentUser = userDatabase[user_id];
   let templateVars = {
     user_id,
@@ -184,32 +173,44 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars)
 })
 
+app.get("/register", (req, res) => {
+  let user_id = req.session["user_id"];
+  let currentUser = userDatabase[user_id];
+  let templateVars = {
+    user_id,
+    currentUser
+  };
+  res.render("register", templateVars);
+})
+
+
 // POST routes
 
-//added a POST route to receive form submission
+// A POST route to receive form submission from /urls/new and adds the URL to the list of URLS
 app.post("/urls", (req, res) => {
-  // const getShortURL = String(generateRandomString());
-  // urlDatabase[getShortURL] = req.body['longURL'];
-  // res.redirect(`/urls/${getShortURL}`);
-
+  let user_id = req.session["user_id"];
   let shortURL = String(generateRandomString());
-  let currentUser = req.session["user_id"];
   let longURL = req.body["longURL"];
 
-  let newURL = {
-    id: currentUser,
+  let addURL = {
+    id: user_id,
     [shortURL]: longURL
   };
 
-  urlDatabase[shortURL] = newURL
-  res.status(201).redirect('/urls');
+  urlDatabase[shortURL] = addURL;
 
+  if (user_id) {
+    res.status(201).redirect(`/urls/${shortURL}`);
+  } else {
+    res.status(401).send("401 Unauthorized: Please login to add a new URL.")
+  }
 });
 
-// added a POST route to detele an URL from the list
+// A POST route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
 app.post("/urls/:id/delete", (req, res) => {
   let shortURL = req.params.id;
   let currentUser = req.session["user_id"];
+
   if (currentUser === urlDatabase[shortURL].id) {
     delete urlDatabase[shortURL];
     res.status(200).redirect('/urls');
