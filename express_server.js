@@ -123,8 +123,6 @@ app.get("/urls", (req, res) => {
   let currentUser = userDatabase[user_id];
   let userURLs = urlsForUser(user_id)
 
-  console.log(userURLs);
-
   let templateVars = {
     user_id,
     currentUser,
@@ -218,7 +216,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   let currentUser = req.session["user_id"];
   let shortURL = req.params.shortURL;
-  let editURL = req.body;
+  let editURL = req.body["newURL"];
 
   if (currentUser === urlDatabase[shortURL].id) {
     urlDatabase[shortURL][shortURL] = editURL;
