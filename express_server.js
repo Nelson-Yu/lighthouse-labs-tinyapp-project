@@ -136,7 +136,9 @@ app.get("/urls/:shortURL", (req, res) => {
 //added a GET route to show the form from urls_new.ejs
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  let shortURL = req.params.shortURL
+  let longURL = urlDatabase[shortURL][shortURL];
+
   res.redirect(longURL);
 });
 
