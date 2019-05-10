@@ -7,81 +7,54 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-// const cookieParser = require('cookie-parser');
-// app.use(cookieParser());
-
 const cookieSession = require('cookie-session');
-app.use(cookieSession( {
+app.use(cookieSession ({
   name: "session",
   keys: ["AbC321"],
   maxAge: 24 * 60 * 60 * 1000
-}))
+}));
 
 const bcrypt = require('bcrypt');
 
 // Declared objects used in the routes
 
 const urlDatabase = {
-  "b2xVn2": {
-    "id": "userRandomID",
-    "b2xVn2": "http://www.lighthouselabs.ca",
+  b2xVn2: {
+    id: "userRandomID",
+    b2xVn2: "http://www.lighthouselabs.ca"
   },
-  "9sm5xK": {
-    "id": "user2RandomID",
-    "9sm5xK": "http://www.google.com"
+  P80OsK: {
+    id: "userRandomID",
+    P80OsK: "https://github.com"
+  },
+  s9m5xK: {
+    id: "user2RandomID",
+    s9m5xK: "http://www.google.com"
+  },
+  oSLt22: {
+    id: "user2RandomID",
+    oSLt22: "https://developer.mozilla.org"
   }
 };
 
 const userDatabase = {
-  "userRandomID": {
+  userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
     hashedPassword: bcrypt.hashSync("dino", 12)
   },
- "user2RandomID": {
+ user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
     hashedPassword: bcrypt.hashSync("funk", 12)
   }
-}
+};
 
-// Functions used in routes => used to generate a ramdom string of 6 characters as the shortURL
-const generateRandomString = () => {
-  const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let string = "";
-  const stringLength = 6;
-
-  for (let i = 0; i < stringLength; i++) {
-    let random = Math.floor(Math.random() * Math.floor(char.length));
-    string += char.substring(random, random + 1);
-  }
-  return string;
-}
-
-const emailCheck = (email) => {
-  for (let user_id in userDatabase) {
-    if (userDatabase[user_id].email === email) {
-      return  true;
-    }
-  }
-  return false;
-}
-
-const urlsForUser = (id) => {
-  let urlsUser = {};
-  for (let key in urlDatabase) {
-    if (urlDatabase[key].id === id) {
-      urlsUser[key] = urlDatabase[key];
-    }
-  }
-  return urlsUser;
-}
 
 // GET Routes
-
 // A GET route where when a user is logged in "/" will redirect to "/urls", else it will redirect to "/login"
 app.get("/", (req, res) => {
-  let user_id = req.session["user_id"];
+  const user_id = req.session["user_id"];
 
   if (user_id) {
     res.redirect("/urls");
@@ -92,11 +65,11 @@ app.get("/", (req, res) => {
 
 // A GET route where when a user is logged in it renders "urls_index", else return an error
 app.get("/urls", (req, res) => {
-  let user_id = req.session["user_id"];
-  let currentUser = userDatabase[user_id];
-  let userURLs = urlsForUser(user_id)
+  const user_id = req.session["user_id"];
+  const currentUser = userDatabase[user_id];
+  const userURLs = urlsForUser(user_id);
 
-  let templateVars = {
+  const templateVars = {
     user_id,
     currentUser,
     urls: urlDatabase,
@@ -113,10 +86,10 @@ app.get("/urls", (req, res) => {
 
 // A GET route for /urls/new where if the user is logged in it renders "urls_new", else returns error
 app.get("/urls/new", (req, res) => {
-  let user_id = req.session["user_id"];
-  let currentUser = userDatabase[user_id];
+  const user_id = req.session["user_id"];
+  const currentUser = userDatabase[user_id];
 
-  let templateVars = {
+  const templateVars = {
     user_id,
     currentUser
   };
@@ -130,12 +103,12 @@ app.get("/urls/new", (req, res) => {
 
 // A GET route to /urls/:id where if the user_id matches the id of the URLdatabase render "urls_show", else error.
 app.get("/urls/:id", (req, res) => {
-  let user_id = req.session["user_id"];
-  let currentUser = userDatabase[user_id];
-  let shortURL = req.params.id;
-  let longURL = urlDatabase[shortURL][shortURL]
+  const user_id = req.session["user_id"];
+  const currentUser = userDatabase[user_id];
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL][shortURL]
 
-  let templateVars = {
+  const templateVars = {
     shortURL: shortURL,
     longURL: longURL,
     user_id,
@@ -153,8 +126,8 @@ app.get("/urls/:id", (req, res) => {
 
 // A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
 app.get("/u/:id", (req, res) => {
-  let shortURL = req.params.id
-  let longURL = urlDatabase[shortURL][shortURL];
+  const shortURL = req.params.id
+  const longURL = urlDatabase[shortURL][shortURL];
 
   if (longURL) {
     res.status(302).redirect(longURL);
@@ -165,9 +138,10 @@ app.get("/u/:id", (req, res) => {
 
 // A GET route that redirects the user if logged in, else a login from is displayed
 app.get("/login", (req, res) => {
-  let user_id = req.session["user_id"];
-  let currentUser = userDatabase[user_id];
-  let templateVars = {
+  const user_id = req.session["user_id"];
+  const currentUser = userDatabase[user_id];
+
+  const templateVars = {
     user_id,
     currentUser
   };
@@ -181,9 +155,10 @@ app.get("/login", (req, res) => {
 
 // A GET route that redirects the user if logged in, else a register from is displayed
 app.get("/register", (req, res) => {
-  let user_id = req.session["user_id"];
-  let currentUser = userDatabase[user_id];
-  let templateVars = {
+  const user_id = req.session["user_id"];
+  const currentUser = userDatabase[user_id];
+
+  const templateVars = {
     user_id,
     currentUser
   };
@@ -195,16 +170,14 @@ app.get("/register", (req, res) => {
   }
 })
 
-
 // POST routes
-
 // A POST route to receive form submission from /urls/new and adds the URL to the list of URLS
 app.post("/urls", (req, res) => {
-  let user_id = req.session["user_id"];
-  let shortURL = String(generateRandomString());
-  let longURL = req.body["longURL"];
+  const user_id = req.session["user_id"];
+  const shortURL = String(generateRandomString());
+  const longURL = req.body["longURL"];
 
-  let addURL = {
+  const addURL = {
     id: user_id,
     [shortURL]: longURL
   };
@@ -220,9 +193,9 @@ app.post("/urls", (req, res) => {
 
 // A POST route to accept the update submission from the urls/:id page
 app.post("/urls/:id", (req, res) => {
-  let user_id = req.session["user_id"];
-  let shortURL = req.params.id;
-  let editURL = req.body["newURL"];
+  const user_id = req.session["user_id"];
+  const shortURL = req.params.id;
+  const editURL = req.body["newURL"];
 
   if (user_id === urlDatabase[shortURL].id) {
     urlDatabase[shortURL][shortURL] = editURL;
@@ -234,8 +207,8 @@ app.post("/urls/:id", (req, res) => {
 
 // A POST route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
 app.post("/urls/:id/delete", (req, res) => {
-  let user_id = req.session["user_id"];
-  let shortURL = req.params.id;
+  const user_id = req.session["user_id"];
+  const shortURL = req.params.id;
 
   if (user_id === urlDatabase[shortURL].id) {
     delete urlDatabase[shortURL];
@@ -285,7 +258,11 @@ app.post("/register", (req, res) => {
   const passwordInput = req.body.password;
   const hashPassword = bcrypt.hashSync(passwordInput, 12);
 
-  let userList = {id: user_id, email: emailInput, hashedPassword: hashPassword};
+  const userList = {
+    id: user_id,
+    email: emailInput,
+    hashedPassword: hashPassword
+  };
 
   if (!userList.email || !userList.hashedPassword) {
     res.status(400).send('400 Bad Request: Please enter email and password');
@@ -296,10 +273,49 @@ app.post("/register", (req, res) => {
     req.session["user_id"] = user_id;
     res.redirect('/urls');
   }
-})
+});
 
 // LISTEN route
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+// Helper functions used in routes:
+// This function generates a random number to pick a character from char 6 times and then strings together the numbers to create a shortURL code
+// This function was used in the POST route for /urls to add a shortURL to the added longURL
+// This function was also used in the /register POST route to gengerate a random 6 digit ID for a new registered user
+const generateRandomString = () => {
+  let string = "";
+  const stringLength = 6;
+  const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < stringLength; i++) {
+    const random = Math.floor(Math.random() * Math.floor(char.length));
+    string += char.substring(random, random + 1);
+  }
+  return string;
+};
+
+//This function iterates through the userDatabase object to find an email of a user, if the email matches an input email the function will return true, else it will return false
+//This function was used in the POST routes for /register and /login to check if an existing email is in the userDatabase
+const emailCheck = (email) => {
+  for (let key in userDatabase) {
+    if (userDatabase[key].email === email) {
+      return  true;
+    }
+  }
+  return false;
+};
+
+//This function iterates through the urlDatabase object to find the saved URL's id(owner), if the input id matches the owner's urlDatabase is isolated in a new object
+//This function was used in the GET route for /urls to return the user's personalized URL database as a list
+const urlsForUser = (id) => {
+  let urlsUser = {};
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].id === id) {
+      urlsUser[key] = urlDatabase[key];
+    }
+  }
+  return urlsUser;
+};
