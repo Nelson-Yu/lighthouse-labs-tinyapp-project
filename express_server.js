@@ -10,6 +10,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const bcrypt = require('bcrypt');
+
 // Declared objects used in the routes
 
 const urlDatabase = {
@@ -27,12 +29,12 @@ const userDatabase = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "dino"
+    hashedPassword: "dino"
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "funk"
+    hashedPassword: "funk"
   }
 }
 
@@ -216,7 +218,10 @@ app.post("/login", (req, res) => {
    let userID = '';
 
    for (let user in userDatabase) {
-     if ((userDatabase[user].email === req.body.email) && (userDatabase[user].password === req.body.password)) {
+    const emailInput = req.body.email;
+    const passwordInput = req.body.password;
+    const userPassword = userDatabase[user].hashedPassword;
+     if ((userDatabase[user].email === emailInput) && (bcrypt.compareSync(passwordInput, userPassword))) {
       match = true;
       userID = userDatabase[user].id;
       }
@@ -241,9 +246,13 @@ app.post("/logout", (req, res) => {
 //added a POST route for /register where email is added to databse + handled registration error
 app.post("/register", (req, res) => {
   const user_id = generateRandomString();
-  let userList = {id: user_id, email: req.body.email, password: req.body.password};
+  const emailInput = req.body.email;
+  const passwordInput = req.body.password;
+  const hashPassword = bcrypt.hashSync(passwordInput, 12);
 
-  if (!userList.email || !userList.password) {
+  let userList = {id: user_id, email: emailInput, hashedPassword: hashPassword};
+
+  if (!userList.email || !userList.hashedPassword) {
     res.status(400).send('400 Bad Request: Please enter email and password');
   } else if (emailCheck(req.body.email)) {
     res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail');
