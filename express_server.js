@@ -7,8 +7,16 @@ app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+// const cookieParser = require('cookie-parser');
+// app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession( {
+  name: "session",
+  keys: ["123aBc", "AbC321"],
+
+  //cookie options
+  maxAge: 24 * 60 * 60 * 1000
+}))
 
 const bcrypt = require('bcrypt');
 
@@ -72,7 +80,7 @@ const urlsForUser = (id) => {
 
 // GET Routes
 app.get("/urls/new", (req, res) => {
-  let user_id = req.cookies['user_id'];
+  let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
 
   let templateVars = {
@@ -105,7 +113,7 @@ app.get("/urls.json", (req, res) => {
 
 // /urls route that uses res.render() to pass url data to our template
 app.get("/urls", (req, res) => {
-  let user_id = req.cookies['user_id'];
+  let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
   let userURLs = urlsForUser(user_id)
 
@@ -123,7 +131,7 @@ app.get("/urls", (req, res) => {
 // added /url/:shortURL route
 app.get("/urls/:shortURL", (req, res) => {
   let sURL = req.params.shortURL;
-  let user_id = req.cookies['user_id'];
+  let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
 
   let templateVars = {
@@ -145,7 +153,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let user_id = req.cookies['user_id'];
+  let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
   let templateVars = {
     user_id,
@@ -155,7 +163,7 @@ app.get("/register", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  let user_id = req.cookies['user_id'];
+  let user_id = req.session['user_id'];
   let currentUser = userDatabase[user_id];
   let templateVars = {
     user_id,
@@ -173,7 +181,7 @@ app.post("/urls", (req, res) => {
   // res.redirect(`/urls/${getShortURL}`);
 
   const shortURL = String(generateRandomString());
-  let currentUser = req.cookies["user_id"];
+  let currentUser = req.session["user_id"];
   let longURL = req.body;
 
   let newURL = {
@@ -189,7 +197,7 @@ app.post("/urls", (req, res) => {
 // added a POST route to detele an URL from the list
 app.post("/urls/:id/delete", (req, res) => {
   let shortURL = req.params.id;
-  let currentUser = req.cookies["user_id"];
+  let currentUser = req.session["user_id"];
   if (currentUser === urlDatabase[shortURL].id) {
     delete urlDatabase[shortURL];
     res.status(200).redirect('/urls');
@@ -200,7 +208,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // added a POST route to add an update submit button
 app.post("/urls/:shortURL", (req, res) => {
-  let currentUser = req.cookies["user_id"];
+  let currentUser = req.session["user_id"];
   let shortURL = req.params.shortURL;
   let editURL = req.body;
 
@@ -230,7 +238,8 @@ app.post("/login", (req, res) => {
    if (!emailCheck(req.body.email)) {
     res.status(403).send('403: Email is not registered');
   } else if (match) {
-    res.cookie('user_id', userID);
+    // res.cookie('user_id', userID);
+    req.session.user_id = userID;
     res.redirect('/urls');
   } else {
     res.status(403).send('403: Forbidden');
@@ -239,8 +248,9 @@ app.post("/login", (req, res) => {
 
 //added a POST route for a logout using clearCookies
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("/urls");
+  // res.clearCookie("user_id");
+  req.session = null
+  res.status(200).redirect("/urls");
 });
 
 //added a POST route for /register where email is added to databse + handled registration error
@@ -258,7 +268,8 @@ app.post("/register", (req, res) => {
     res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail');
   } else {
     userDatabase[user_id] = userList;
-    res.cookie('user_id', user_id);
+    // res.cookie('user_id', user_id);
+    req.session["user_id"] = user_id
     res.redirect('/urls');
   }
   console.log(userDatabase); // used to check if userdatabase updated
