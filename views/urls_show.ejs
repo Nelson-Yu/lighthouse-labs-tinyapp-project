@@ -1,39 +1,26 @@
-<!DOCTYPE html>
+<%- include partials/_header %>
+<p>
+  <a href="/urls">Your current list of URLs</a>
+</p>
+<p>
+  <a href="/urls/new">Create a new short URL!</a>
+</p>
 
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</div>
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
+<div class="content">
 
-<body style="font-size:20px; padding:50px;">
-  <%- include partials/_header %>
-
+  <h1>Edit Your Short URL</h1>
+  <p> Short URL: <a href= "/u/<%= shortURL %>"><%= shortURL %></a> ➡️ <%= longURL %> </p>
+  <p> Visits: <%= views %> </p>
   <p>
-    <a href="/urls/new">Create New URL</a>
+    <form method ="POST" action="/urls/<%= shortURL %>?_method=PUT">
+      <label for="newURL"> Change URL: </label>
+      <input type="text" name="newURL" placeholder="<%= longURL %>" style="width: 300px; font-size: 20px; height: 30px; margin: 1em">
+      <input type ="submit" value="Update!" class="button button1" >
+    </form>
   </p>
-
-  <p>
-  <a href="/urls">Current List of URLs</a>
-  </p>
-
-  <h4>
-    Short URL:
-    <a href= "/u/<%= shortURL %>"><%= shortURL %></a> ➡️ <%= longURL %>
-  </h4>
-
-  <p> Visits: <%= views %></p>
-
-  <form method ="POST" action="/urls/<%= shortURL %>?_method=PUT">
-    <label for="newURL"> Change URL</label>
-    <input type="text" name="newURL" placeholder="<%= longURL %>">
-    <input type ="submit" value="Update!">
-  </form>
+</div>
 
 </body>
-
 </html>

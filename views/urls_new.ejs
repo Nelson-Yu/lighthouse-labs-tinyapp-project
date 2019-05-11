@@ -1,33 +1,21 @@
-<!DOCTYPE html>
+<%- include partials/_header %>
+<p>
+  <a href="/urls">Your current list of URLs</a>
+</p>
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</div>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<div class="content">
 
-    <title>New URL - TinyApp Example</title>
-  </head>
-
-  <body style="font-size:20px; padding:50px;">
-
-    <% include partials/_header %>
-
-    <p>
-      <a href="/urls">Current List of URLs</a>
-    </p>
-
-    <h4>Create TinyURL</h4>
-
+  <h1>Create a Shortened URL</h1>
     <form class="form-inline" action="/urls" method="POST">
       <div class="form-group mb-2">
         <label for="longURL">Enter a URL:</label>
-        <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; font-size: 20px; height: 30px; margin: 1em">
+        <button type="submit" class="button button1">Submit</button>
       </div>
     </form>
+</div>
 
   </body>
 </html>
