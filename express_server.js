@@ -25,22 +25,22 @@ const PORT = 8080; // default port 8080
 const urlDatabase = {
   b2xVn2: {
     id: 'userRandomID',
-    b2xVn2: 'http://www.lighthouselabs.ca',
+    url: 'http://www.lighthouselabs.ca',
     visits: 0
   },
   P80OsK: {
     id: 'userRandomID',
-    P80OsK: 'https://github.com',
+    url: 'https://github.com',
     visits: 0
   },
   s9m5xK: {
     id: 'user2RandomID',
-    s9m5xK: 'http://www.google.com',
+    url: 'http://www.google.com',
     visits: 0
   },
   oSLt22: {
     id: 'user2RandomID',
-    oSLt22: 'https://developer.mozilla.org',
+    url: 'https://developer.mozilla.org',
     visits: 0
   }
 };
@@ -49,12 +49,12 @@ const userDatabase = {
   userRandomID: {
     id: 'userRandomID',
     email: 'user@example.com',
-    hashedPassword: bcrypt.hashSync('dino', 12)
+    password: bcrypt.hashSync('dino', 12)
   },
  user2RandomID: {
     id: 'user2RandomID',
     email: 'user2@example.com',
-    hashedPassword: bcrypt.hashSync('funk', 12)
+    password: bcrypt.hashSync('funk', 12)
   }
 };
 
@@ -80,14 +80,14 @@ app.get('/urls', (req, res) => {
     user_id,
     activeUser,
     urls: urlDatabase,
-    userURLs,
-    users: userDatabase
+    users: userDatabase,
+    userURLs
   };
 
   if (user_id) {
     res.render('urls_index', templateVars);
   } else {
-    res.status(401).send('401 Unauthorized: Please login to see your URL list!');
+    res.status(401).send('401 Unauthorized: Please login to see your URL list! Return to localhost:8080/');
   }
 });
 
@@ -111,7 +111,7 @@ app.get('/urls/new', (req, res) => {
 // A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
 app.get('/u/:id', (req, res) => {
   const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL][shortURL];
+  const longURL = urlDatabase[shortURL].url;
 
   if (longURL) {
     urlDatabase[shortURL].visits++; //Each time this u/:id is used the visits counter +1
@@ -126,7 +126,7 @@ app.get('/urls/:id', (req, res) => {
   const user_id = req.session['user_id'];
   const activeUser = userDatabase[user_id];
   const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL][shortURL];
+  const longURL = urlDatabase[shortURL].url;
   const views = urlDatabase[shortURL].visits;
 
   const templateVars = {
@@ -141,7 +141,7 @@ app.get('/urls/:id', (req, res) => {
     res.render('urls_show', templateVars);
   } else if (!longURL) {
     res.status(404).send('404 Not Found: This URL does not exist!');
-  }  else {
+  } else {
     res.status(401).send('401 Unauthorized: Unable to access this page!');
   }
 });
@@ -185,11 +185,11 @@ app.get('/register', (req, res) => {
 app.post('/urls', (req, res) => {
   const user_id = req.session['user_id'];
   const shortURL = String(generateRandomString());
-  const longURL = req.body['longURL'];
+  const longURL = req.body['url'];
 
   const addURL = {
     id: user_id,
-    [shortURL]: longURL,
+    url: longURL,
     visits: 0
   };
 
@@ -205,21 +205,20 @@ app.post('/urls', (req, res) => {
 // A POST route for a login using encrypted cookies and hashed passwords
 // The if statement checks if the email is already registered or if the entered email/password match or not
 app.post('/login', (req, res) => {
-   let match = false;
-   let user_id = '';
+  let match = false;
+  let user_id = '';
+  const emailInput = req.body.email;
+  const passwordInput = req.body.password;
 
-   for (let user in userDatabase) {
-    const emailInput = req.body.email;
-    const passwordInput = req.body.password;
-    const userPassword = userDatabase[user].hashedPassword;
-
+  for (let user in userDatabase) {
+    const userPassword = userDatabase[user].password;
     if ((userDatabase[user].email === emailInput) && (bcrypt.compareSync(passwordInput, userPassword))) {
       match = true;
       user_id = userDatabase[user].id;
       }
     }
 
-   if (!emailCheck(emailInput)) { //uese emailcheck() to check if the input email is already registered in the userDatabase or not
+  if (!emailCheck(emailInput)) { //uese emailcheck() to check if the input email is already registered in the userDatabase or not
     res.status(403).send('403 Forbidden: Email is not registered!');
   } else if (match) {
     req.session['user_id'] = user_id;
@@ -246,10 +245,10 @@ app.post('/register', (req, res) => {
   const userList = {
     id: user_id,
     email: emailInput,
-    hashedPassword: hashPassword
+    password: hashPassword
   };
 
-  if (!userList.email || !userList.hashedPassword) {
+  if (!userList.email || !userList.password) {
     res.status(400).send('400 Bad Request: Please enter email and password!');
   } else if (emailCheck(emailInput)) {
     res.status(400).send('400 Bad Request: E-mail already registered, please use another e-mail!');
@@ -268,7 +267,7 @@ app.put('/urls/:id', (req, res) => {
   const editURL = req.body['newURL'];
 
   if (user_id === urlDatabase[shortURL].id) {
-    urlDatabase[shortURL][shortURL] = editURL;
+    urlDatabase[shortURL].url = editURL;
     res.status(200).redirect('/urls');
   } else {
     res.status(401).send('401 Forbidden: Edit requires logged in owner of URLs!')
