@@ -21,7 +21,7 @@
         <% for(let shortURL in userURLs){ %>
           <li><b><%= shortURL %></b>: <%= userURLs[shortURL][shortURL] %>
           <br>
-          <form method="POST" action="/urls/<%= shortURL %>/delete">
+          <form method="POST" action="/urls/<%= shortURL %>/delete?_method=DELETE">
             <a href="/urls/<%= shortURL %>"> Edit </a>
             <input type="submit" value="Delete 🗑️">
           </form>

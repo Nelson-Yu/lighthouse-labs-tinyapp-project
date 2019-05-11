@@ -14,7 +14,10 @@ app.use(cookieSession ({
   maxAge: 24 * 60 * 60 * 1000
 }));
 
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
+
+const methodOverride = require("method-override")
+app.use(methodOverride("_method"));
 
 const PORT = 8080; // default port 8080
 
@@ -52,7 +55,7 @@ const userDatabase = {
   }
 };
 
-// GET Routes
+// GET Routes --------------------------------------------------------
 // A GET route where when a user is logged in "/" will redirect to "/urls", else it will redirect to "/login"
 app.get("/", (req, res) => {
   const user_id = req.session["user_id"];
@@ -127,7 +130,7 @@ app.get("/urls/:id", (req, res) => {
 
 // A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
 app.get("/u/:id", (req, res) => {
-  const shortURL = req.params.id
+  const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL][shortURL];
 
   if (longURL) {
@@ -152,7 +155,7 @@ app.get("/login", (req, res) => {
   } else {
     res.render("login", templateVars);
   }
-})
+});
 
 // A GET route that redirects the user if logged in, else a register from is displayed
 app.get("/register", (req, res) => {
@@ -169,9 +172,9 @@ app.get("/register", (req, res) => {
   } else {
     res.render("register", templateVars);
   }
-})
+});
 
-// POST routes
+// POST routes --------------------------------------------------------
 // A POST route to receive form submission from /urls/new and adds the URL to the list of URLS
 app.post("/urls", (req, res) => {
   const user_id = req.session["user_id"];
@@ -189,33 +192,6 @@ app.post("/urls", (req, res) => {
     res.status(201).redirect(`/urls/${shortURL}`);
   } else {
     res.status(401).send("401 Unauthorized: Please login to add a new URL.")
-  }
-});
-
-// A POST route to accept the update submission from the urls/:id page
-app.post("/urls/:id", (req, res) => {
-  const user_id = req.session["user_id"];
-  const shortURL = req.params.id;
-  const editURL = req.body["newURL"];
-
-  if (user_id === urlDatabase[shortURL].id) {
-    urlDatabase[shortURL][shortURL] = editURL;
-    res.status(200).redirect('/urls');
-  } else {
-    res.status(401).send("401 Forbidden: Edit requires owner of URLs")
-  }
-});
-
-// A POST route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
-app.post("/urls/:id/delete", (req, res) => {
-  const user_id = req.session["user_id"];
-  const shortURL = req.params.id;
-
-  if (user_id === urlDatabase[shortURL].id) {
-    delete urlDatabase[shortURL];
-    res.status(200).redirect('/urls');
-  } else {
-    res.status(401).send('401 Forbidden: Deletion requires owner of URLs')
   }
 });
 
@@ -273,6 +249,34 @@ app.post("/register", (req, res) => {
     userDatabase[user_id] = userList;
     req.session["user_id"] = user_id;
     res.redirect('/urls');
+  }
+});
+
+// Other routes implemented by method-override -----------------------
+// A PUT route to accept the update submission from the urls/:id page
+app.put("/urls/:id", (req, res) => {
+  const user_id = req.session["user_id"];
+  const shortURL = req.params.id;
+  const editURL = req.body["newURL"];
+
+  if (user_id === urlDatabase[shortURL].id) {
+    urlDatabase[shortURL][shortURL] = editURL;
+    res.status(200).redirect('/urls');
+  } else {
+    res.status(401).send("401 Forbidden: Edit requires owner of URLs")
+  }
+});
+
+// A DELETE route to detele an URL from the list, if the user is the not the owner of the URL it will return an error.
+app.delete("/urls/:id/delete", (req, res) => {
+  const user_id = req.session["user_id"];
+  const shortURL = req.params.id;
+
+  if (user_id === urlDatabase[shortURL].id) {
+    delete urlDatabase[shortURL];
+    res.status(200).redirect('/urls');
+  } else {
+    res.status(401).send('401 Forbidden: Deletion requires owner of URLs')
   }
 });
 
