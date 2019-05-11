@@ -10,7 +10,7 @@
   <ul>
     <% if (activeUser){ %>
       <% for(let shortURL in userURLs){ %>
-        <li><b><%= shortURL %></b>: <%= userURLs[shortURL][shortURL] %> <a href="/urls/<%= shortURL %>"> Edit </a>
+        <li><b><%= shortURL %></b>: <%= userURLs[shortURL].url %> <a href="/urls/<%= shortURL %>"> Edit </a>
             <form method="POST" action="/urls/<%= shortURL %>/delete?_method=DELETE">
               <input type="submit" value="Delete! 🗑️" class="button button1">
             </form>
