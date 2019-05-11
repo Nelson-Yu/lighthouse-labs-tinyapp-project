@@ -1,6 +1,6 @@
+//Required aide of several packages
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 
@@ -15,6 +15,8 @@ app.use(cookieSession ({
 }));
 
 const bcrypt = require('bcrypt');
+
+const PORT = 8080; // default port 8080
 
 // Declared objects used in the routes
 
@@ -49,7 +51,6 @@ const userDatabase = {
     hashedPassword: bcrypt.hashSync("funk", 12)
   }
 };
-
 
 // GET Routes
 // A GET route where when a user is logged in "/" will redirect to "/urls", else it will redirect to "/login"
@@ -228,7 +229,7 @@ app.post("/login", (req, res) => {
     const emailInput = req.body.email;
     const passwordInput = req.body.password;
     const userPassword = userDatabase[user].hashedPassword;
-     if ((userDatabase[user].email === emailInput) && (bcrypt.compareSync(passwordInput, userPassword))) {
+    if ((userDatabase[user].email === emailInput) && (bcrypt.compareSync(passwordInput, userPassword))) {
       match = true;
       userID = userDatabase[user].id;
       }
