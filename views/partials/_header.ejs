@@ -70,8 +70,8 @@ body {
 </div>
 
 <div class="secondheader">
-  <% if (currentUser) { %>
-    Hi <%= currentUser.email%>!
+  <% if (activeUser) { %>
+    Hi <%= activeUser.email%>!
     <form method="POST" action="/logout">
       <input type="submit" value="Logout">
     </form>
