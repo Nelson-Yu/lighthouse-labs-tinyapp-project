@@ -26,19 +26,23 @@ const PORT = 8080; // default port 8080
 const urlDatabase = {
   b2xVn2: {
     id: "userRandomID",
-    b2xVn2: "http://www.lighthouselabs.ca"
+    b2xVn2: "http://www.lighthouselabs.ca",
+    visits: 0
   },
   P80OsK: {
     id: "userRandomID",
-    P80OsK: "https://github.com"
+    P80OsK: "https://github.com",
+    visits: 0
   },
   s9m5xK: {
     id: "user2RandomID",
-    s9m5xK: "http://www.google.com"
+    s9m5xK: "http://www.google.com",
+    visits: 0
   },
   oSLt22: {
     id: "user2RandomID",
-    oSLt22: "https://developer.mozilla.org"
+    oSLt22: "https://developer.mozilla.org",
+    visits: 0
   }
 };
 
@@ -105,18 +109,33 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL][shortURL];
+
+  if (longURL) {
+    urlDatabase[shortURL].visits++;
+    res.status(302).redirect(longURL);
+  } else {
+    res.status(404).send("404 Not Found: This URL does not exist!");
+  }
+});
+
 // A GET route to /urls/:id where if the user_id matches the id of the URLdatabase render "urls_show", else error.
 app.get("/urls/:id", (req, res) => {
   const user_id = req.session["user_id"];
   const currentUser = userDatabase[user_id];
   const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL][shortURL]
+  const longURL = urlDatabase[shortURL][shortURL];
+  const views = urlDatabase[shortURL].visits;
 
   const templateVars = {
     shortURL: shortURL,
     longURL: longURL,
     user_id,
-    currentUser
+    currentUser,
+    views
   };
 
   if (user_id === urlDatabase[shortURL].id) {
@@ -125,18 +144,6 @@ app.get("/urls/:id", (req, res) => {
     res.status(404).send("404 Not Found: This URL does not exist");
   }  else {
     res.status(401).send("401 Unauthorized: Unable to access this page");
-  }
-});
-
-// A GET route that when accessed redirects to the longURL, if the longURL does not exist it will return a 404 error
-app.get("/u/:id", (req, res) => {
-  const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL][shortURL];
-
-  if (longURL) {
-    res.status(302).redirect(longURL);
-  } else {
-    res.status(404).send("404 Not Found: This URL does not exist!");
   }
 });
 
@@ -183,7 +190,8 @@ app.post("/urls", (req, res) => {
 
   const addURL = {
     id: user_id,
-    [shortURL]: longURL
+    [shortURL]: longURL,
+    visits: 0
   };
 
   urlDatabase[shortURL] = addURL;
