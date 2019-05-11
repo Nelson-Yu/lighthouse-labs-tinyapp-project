@@ -8,7 +8,7 @@
 <div class="content">
   <h1>Your URLs List:</h1>
   <ul>
-    <% if (currentUser){ %>
+    <% if (activeUser){ %>
       <% for(let shortURL in userURLs){ %>
         <li><b><%= shortURL %></b>: <%= userURLs[shortURL][shortURL] %> <a href="/urls/<%= shortURL %>"> Edit </a>
             <form method="POST" action="/urls/<%= shortURL %>/delete?_method=DELETE">
